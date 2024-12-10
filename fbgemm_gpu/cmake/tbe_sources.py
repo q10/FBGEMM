@@ -91,12 +91,12 @@ DENSE_OPTIONS = [
 ################################################################################
 
 static_cpu_files_inference = [
-    "${FBGEMM_GPU}/codegen/inference/embedding_forward_quantized_host_cpu.cpp",
+    "codegen/inference/embedding_forward_quantized_host_cpu.cpp",
 ]
 
 static_gpu_files_inference = [
-    "${FBGEMM_GPU}/codegen/inference/embedding_forward_quantized_host.cpp",
-    "${FBGEMM_GPU}/codegen/inference/embedding_forward_quantized_split_lookup.cu",
+    "codegen/inference/embedding_forward_quantized_host.cpp",
+    "codegen/inference/embedding_forward_quantized_split_lookup.cu",
 ]
 
 gen_cpu_files_inference = [
@@ -185,12 +185,12 @@ gen_fused_optim_header_files = (
 )
 
 gen_defused_optim_templates = [
-    "${FBGEMM_GPU}/codegen/training/optimizer/embedding_optimizer_split_device_kernel_template.cuh",
-    "${FBGEMM_GPU}/codegen/training/optimizer/embedding_optimizer_split_host_template.cpp",
-    "${FBGEMM_GPU}/codegen/training/optimizer/embedding_optimizer_split_kernel_template.cu",
-    "${FBGEMM_GPU}/codegen/training/optimizer/embedding_optimizer_split_template.cu",
-    "${FBGEMM_GPU}/codegen/training/python/split_embedding_optimizer_codegen.template",
-    "${FBGEMM_GPU}/codegen/training/python/optimizer_args.py",
+    "codegen/training/optimizer/embedding_optimizer_split_device_kernel_template.cuh",
+    "codegen/training/optimizer/embedding_optimizer_split_host_template.cpp",
+    "codegen/training/optimizer/embedding_optimizer_split_kernel_template.cu",
+    "codegen/training/optimizer/embedding_optimizer_split_template.cu",
+    "codegen/training/python/split_embedding_optimizer_codegen.template",
+    "codegen/training/python/optimizer_args.py",
 ]
 
 gen_defused_optim_header_files = [
@@ -286,9 +286,9 @@ gen_index_select_header_files = [
 ]
 
 static_index_select_src_files = [
-    "${FBGEMM_GPU}/codegen/training/index_select/batch_index_select_dim0_cpu_host.cpp",
-    "${FBGEMM_GPU}/codegen/training/index_select/batch_index_select_dim0_host.cpp",
-    "${FBGEMM_GPU}/codegen/training/index_select/batch_index_select_dim0_ops.cpp",
+    "codegen/training/index_select/batch_index_select_dim0_cpu_host.cpp",
+    "codegen/training/index_select/batch_index_select_dim0_host.cpp",
+    "codegen/training/index_select/batch_index_select_dim0_ops.cpp",
 ]
 
 ################################################################################
@@ -296,19 +296,19 @@ static_index_select_src_files = [
 ################################################################################
 
 static_cpu_files_training = [
-    "${FBGEMM_GPU}/codegen/training/backward/embedding_backward_dense_host_cpu.cpp",
+    "codegen/training/backward/embedding_backward_dense_host_cpu.cpp",
 ]
 
 static_cpu_files_common = [
-    "${FBGEMM_GPU}/codegen/utils/embedding_bounds_check_host_cpu.cpp",
-    "${FBGEMM_GPU}/codegen/training/forward/embedding_forward_split_cpu.cpp",
+    "codegen/utils/embedding_bounds_check_host_cpu.cpp",
+    "codegen/training/forward/embedding_forward_split_cpu.cpp",
 ]
 
 static_gpu_files_common = [
-    "${FBGEMM_GPU}/codegen/utils/embedding_bounds_check_v1.cu",
-    "${FBGEMM_GPU}/codegen/utils/embedding_bounds_check_v2.cu",
-    "${FBGEMM_GPU}/codegen/utils/embedding_bounds_check_host.cpp",
-    "${FBGEMM_GPU}/codegen/training/pt2/pt2_autograd_utils.cpp",
+    "codegen/utils/embedding_bounds_check_v1.cu",
+    "codegen/utils/embedding_bounds_check_v2.cu",
+    "codegen/utils/embedding_bounds_check_host.cpp",
+    "codegen/training/pt2/pt2_autograd_utils.cpp",
 ]
 
 gen_cpu_files_training = (
