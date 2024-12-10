@@ -196,7 +196,7 @@ function(get_tbe_sources_list variable_name)
     COMMAND
       "${PYTHON_EXECUTABLE}"
       -c
-      "exec(open('${genfiles_script}').read()); print(' '.join(${variable_name}))"
+      "exec(open('${genfiles_script}').read()); print(';'.join(${variable_name}))"
     WORKING_DIRECTORY
       "${CMAKE_CURRENT_SOURCE_DIR}"
     OUTPUT_VARIABLE
