@@ -435,7 +435,7 @@ handle_genfiles_rocm(fbgemm_gpu_sources_gpu_gen)
 ################################################################################
 
 # Build TBE targets
-include(${FBGEMM_GPU}/cmake/Tbe.cmake)
+include(${FBGEMM_GPU}/cmake/TbeInference.cmake)
 
 # Test target to demonstrate that target deps works as intended
 gpu_cpp_library(
