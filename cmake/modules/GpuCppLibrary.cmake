@@ -190,8 +190,9 @@ function(gpu_cpp_library)
         STRING(RANDOM LENGTH 6 salt)
 
         # Generate a placeholder source file
-        file(COPY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/placeholder.cpp
-            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/gen_placeholder_${salt}.cpp)
+        file(COPY_FILE
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/placeholder.cpp
+            ${CMAKE_CURRENT_BINARY_DIR}/gen_placeholder_${salt}.cpp)
 
         # Append to lib_sources
         list(APPEND lib_sources
