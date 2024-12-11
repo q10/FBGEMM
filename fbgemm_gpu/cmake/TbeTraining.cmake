@@ -67,8 +67,6 @@ gpu_cpp_library(
     ${gen_defused_optim_src_files}
   GPU_FLAGS
     ${TORCH_CUDA_OPTIONS}
-  DEPS
-    fbgemm
   DESTINATION
     fbgemm_gpu)
 
@@ -89,9 +87,9 @@ gpu_cpp_library(
   GPU_FLAGS
     ${TORCH_CUDA_OPTIONS}
   DEPS
-    asmjit
     fbgemm
-    split_embeddings_cache
+    fbgemm_gpu_tbe_cache
+    fbgemm_gpu_tbe_common
   DESTINATION
     fbgemm_gpu)
 
