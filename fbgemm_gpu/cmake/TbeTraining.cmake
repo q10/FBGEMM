@@ -10,6 +10,7 @@
 
 # Optimizers
 get_tbe_sources_list(gen_defused_optim_src_files)
+handle_genfiles_rocm(gen_defused_optim_src_files)
 
 # Forward Split
 get_tbe_sources_list(gen_cpu_files_forward_split)
@@ -50,9 +51,8 @@ gpu_cpp_library(
     ${static_gpu_files_common}
   GPU_FLAGS
     ${TORCH_CUDA_OPTIONS}
-  # DEPS
-  #   asmjit
-  #   fbgemm
+  DEPS
+    fbgemm
   DESTINATION
     fbgemm_gpu)
 
@@ -68,9 +68,7 @@ gpu_cpp_library(
   GPU_FLAGS
     ${TORCH_CUDA_OPTIONS}
   DEPS
-    asmjit
     fbgemm
-    split_embeddings_cache
   DESTINATION
     fbgemm_gpu)
 
@@ -111,8 +109,5 @@ gpu_cpp_library(
     ${gen_gpu_files_index_select}
   GPU_FLAGS
     ${TORCH_CUDA_OPTIONS}
-  DEPS
-    asmjit
-    fbgemm
   DESTINATION
     fbgemm_gpu)
