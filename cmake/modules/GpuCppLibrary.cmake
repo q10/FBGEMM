@@ -183,9 +183,9 @@ function(gpu_cpp_library)
         INCLUDE_DIRS ${args_INCLUDE_DIRS})
     set(lib_sources ${${args_PREFIX}_sources})
 
-    # If there are empty sources (e.g. the target is GPU-only and we are
-    # currently building in CPU-only mode), create a dud library
-    if(NOT ${lib_sources})
+    # If the overall sources list is empty (e.g. the target is GPU-only and we
+    # are currently building in CPU-only mode), create a placeholder library
+    if(NOT lib_sources AND NOT args_OTHER_SRCS)
         # Create salt value
         STRING(RANDOM LENGTH 6 salt)
 
