@@ -49,7 +49,11 @@ install_cuda () {
   # Install CUDA packages
   echo "[INSTALL] Installing CUDA ${cuda_version} ..."
   # shellcheck disable=SC2086
-  (exec_with_retries 3 conda install --force-reinstall ${env_prefix} -y cuda -c "nvidia/label/cuda-${cuda_version}") || return 1
+  (exec_with_retries 3 conda install --force-reinstall ${env_prefix} -c "nvidia/label/cuda-${cuda_version}" -y cuda) || return 1
+
+  # shellcheck disable=SC2155,SC2086
+  local conda_prefix=$(conda run ${env_prefix} printenv CONDA_PREFIX)
+  ln -sf ${conda_prefix}/lib/libnvToolsExt.so.1 ${conda_prefix}/lib/libnvToolsExt.so
 
   # Ensure that nvcc is properly installed
   (test_binpath "${env_name}" nvcc) || return 1
@@ -70,6 +74,17 @@ install_cuda () {
   nm -gDC "${libcuda_path}"
   append_to_library_path "${env_name}" "$(dirname "$libcuda_path")"
 
+
+  # find / -name cuda.h
+  ls -la ${conda_prefix}/targets/
+  ls -la ${conda_prefix}/targets/x86_64-linux
+  ls -la ${conda_prefix}/targets/x86_64-linux/include
+  # cp -r ${conda_prefix}/targets/x86_64-linux/include/* "${conda_prefix}/include/" || :
+
+
+
+
+
   # The symlink appears to be missing when we attempt to run FBGEMM_GPU on the
   # `ubuntu-latest` runners on GitHub, so we have to manually add this in.
   if [ "$ADD_LIBCUDA_SYMLINK" == "1" ]; then
@@ -80,7 +95,7 @@ install_cuda () {
   # shellcheck disable=SC2155,SC2086
   local conda_prefix=$(conda run ${env_prefix} printenv CONDA_PREFIX)
   # shellcheck disable=SC2155
-  local nvml_lib_path=$(find "${conda_prefix}" -name libnvidia-ml.so)
+  local nvml_lib_path=$(find "${conda_prefix}/lib" -name libnvidia-ml.so)
   # shellcheck disable=SC2086
   print_exec conda env config vars set ${env_prefix} NVML_LIB_PATH="${nvml_lib_path}"
 
@@ -114,6 +129,11 @@ install_cuda () {
   echo "[BUILD] Setting prepend flags for NVCC ..."
   # shellcheck disable=SC2086,SC2145
   print_exec conda env config vars set ${env_prefix} NVCC_PREPEND_FLAGS=\""${nvcc_prepend_flags[@]}"\"
+  print_exec conda run --no-capture-output ${env_prefix} printenv NVCC_PREPEND_FLAGS
+
+  # shellcheck disable=SC2155,SC2086
+  local conda_prefix=$(conda run ${env_prefix} printenv CONDA_PREFIX)
+  print_exec conda env config vars set ${env_prefix} CUDA_INCLUDE_DIRS=\""${conda_prefix}/include/:${conda_prefix}/targets/x86_64-linux/include/"\"
 
   # https://stackoverflow.com/questions/27686382/how-can-i-dump-all-nvcc-preprocessor-defines
   echo "[INFO] Printing out all preprocessor defines in nvcc ..."
