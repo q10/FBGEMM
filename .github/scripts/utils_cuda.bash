@@ -22,6 +22,11 @@ __set_cuda_symlinks_envvars () {
     ln -sf ${conda_prefix}/lib/libnvToolsExt.so.1 ${conda_prefix}/lib/libnvToolsExt.so
   fi
 
+  if [ -f ${CONDA_PREFIX}/targets/x86_64-linux/lib/libnvToolsExt.so.1 ] && [ ! -f ${CONDA_PREFIX}/targets/x86_64-linux/lib/libnvToolsExt.so ]; then
+    echo "[INSTALL] Setting up symlink to libnvToolsExt.so (2)"
+    ln -sf ${CONDA_PREFIX}/targets/x86_64-linux/lib/libnvToolsExt.so.1 ${CONDA_PREFIX}/targets/x86_64-linux/lib/libnvToolsExt.so
+  fi
+
   # The symlink appears to be missing when we attempt to run FBGEMM_GPU on the
   # `ubuntu-latest` runners on GitHub, so we have to manually add this in.
   if [ "$ADD_LIBCUDA_SYMLINK" == "1" ]; then
