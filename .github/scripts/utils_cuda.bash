@@ -35,11 +35,8 @@ __set_cuda_symlinks_envvars () {
   # shellcheck disable=SC2086
   print_exec conda env config vars set ${env_prefix} NVML_LIB_PATH="${nvml_lib_path}"
 
-  local cuda_include_dirs=(
-    ${conda_prefix}/include/
-    ${conda_prefix}/targets/x86_64-linux/include/
-  )
-  print_exec conda env config vars set ${env_prefix} CUDA_INCLUDE_DIRS=\""${cuda_include_dirs[@]}"\"
+  echo "[INSTALL] Setting environment variable CUDA_INCLUDE_DIRS ..."
+  print_exec conda env config vars set ${env_prefix} CUDA_INCLUDE_DIRS=\""${conda_prefix}/include/:${conda_prefix}/targets/x86_64-linux/include/"\"
 }
 
 __set_nvcc_prepend_flags () {

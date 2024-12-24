@@ -182,7 +182,7 @@ __remove_gcc_activation_scripts () {
   # building using CUDA + Clang.
   #
   # shellcheck disable=SC2155,SC2086
-  if [ "$BUILD_WORKFLOW_STAGE" == "build" ]; then
+  if [ "$BUILD_WORKFLOW_STAGE" == "build" ] && [ "$BUILD_CUDA_VERSION" == "12.6.3" ]; then
     if [ "$BUILD_VARIANT" == "cuda" ] || [ "$BUILD_VARIANT" == "genai" ]; then
       echo "[INSTALL] Removing GCC package activation scripts ..."
       local conda_prefix=$(conda run ${env_prefix} printenv CONDA_PREFIX)
