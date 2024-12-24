@@ -20,7 +20,7 @@ __set_cuda_symlinks_envvars () {
   if [ -f ${conda_prefix}/lib/libnvToolsExt.so.1 ] && [ ! -f ${conda_prefix}/lib/libnvToolsExt.so ]; then
     echo "[INSTALL] Setting up symlink to libnvToolsExt.so"
     print_exec ln -sf ${conda_prefix}/lib/libnvToolsExt.so.1 ${conda_prefix}/lib/libnvToolsExt.so
-    print_exec ln -sf ${CONDA_PREFIX}/targets/x86_64-linux/lib/libnvToolsExt.so.1 ${CONDA_PREFIX}/targets/x86_64-linux/lib/libnvToolsExt.so
+    print_exec ln -sf ${conda_prefix}/targets/x86_64-linux/lib/libnvToolsExt.so.1 ${conda_prefix}/targets/x86_64-linux/lib/libnvToolsExt.so
   fi
 
   # if [ -f ${CONDA_PREFIX}/targets/x86_64-linux/lib/libnvToolsExt.so.1 ] && [ ! -f ${CONDA_PREFIX}/targets/x86_64-linux/lib/libnvToolsExt.so ]; then
