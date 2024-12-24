@@ -231,8 +231,9 @@ __conda_install_clang () {
   print_exec conda env config vars set ${env_prefix} CC="${cc_path}"
   # shellcheck disable=SC2086
   print_exec conda env config vars set ${env_prefix} CXX="${cxx_path}"
-
+  # shellcheck disable=SC2086
   print_exec conda run ${env_prefix} printenv CC
+  # shellcheck disable=SC2086
   print_exec conda run ${env_prefix} printenv CXX
 
   # shellcheck disable=SC2155,SC2086
