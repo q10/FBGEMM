@@ -64,7 +64,7 @@ jobs:
       BUILD_ENV: build_binary
       BUILD_VARIANT: cuda
       BUILD_WORKFLOW_STAGE: build
-      BUILD_CUDA_VERSION: ${{ cuda-version }}
+      BUILD_CUDA_VERSION: ${{ matrix.cuda-version }}
     continue-on-error: true
     strategy:
       # Don't fast-fail all the other builds if one of the them fails
