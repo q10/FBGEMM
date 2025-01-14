@@ -40,7 +40,7 @@ struct half2float16<at::Half> {
 } // namespace internal
 
 namespace {
-template <typename scalar_t, typename grad_t>
+template <typename index_t, typename scalar_t, typename grad_t>
 void split_embedding_backward_exact_cpu_kernel(
     Tensor grad_output,
     Tensor host_weights,
@@ -225,7 +225,7 @@ for (const auto d : c10::irange(D)) {
   } // for each table
 }
 
-template <typename scalar_t>
+template <typename index_t, typename scalar_t>
 void split_embedding_backward_exact_cpu_dense_kernel(
     Tensor grad,
     Tensor grad_output,
@@ -242,8 +242,8 @@ void split_embedding_backward_exact_cpu_dense_kernel(
 
   auto grad_output_data = grad_output.accessor<scalar_t, 2>();
 
-  const auto indices_data = indices.accessor<int64_t, 1>();
-  const auto offsets_data = offsets.accessor<int64_t, 1>();
+  const auto indices_data = indices.accessor<index_t, 1>();
+  const auto offsets_data = offsets.accessor<index_t, 1>();
   const auto indice_weights_data = indice_weights.defined()
       ?
       // If indice_weights are not defined, then this accessor won't be
@@ -349,34 +349,42 @@ for (const auto d : c10::irange(D)) {
 
   grad_output = grad_output.contiguous();
 
-
-  FBGEMM_DISPATCH_FLOAT_AND_HALF(
+  FBGEMM_DISPATCH_INTEGRAL_TYPES(
+    indices.scalar_type(), 
+    "split_embedding_backward_exact_cpu_kernel_1", [&] {
+    using index_t = scalar_t;
+      
+    FBGEMM_DISPATCH_FLOAT_AND_HALF(
       grad_output.scalar_type(),
-      "split_embedding_backward_exact_cpu_outer", [&]() {
-        using grad_t = scalar_t;
+      "split_embedding_backward_exact_cpu_kernel_2", [&] {
+      using grad_t = scalar_t;
+
       FBGEMM_DISPATCH_FLOAT_AND_HALF(
-          host_weights.scalar_type(), "split_embedding_backward_exact_cpu", [&] {
-            split_embedding_backward_exact_cpu_kernel<scalar_t, grad_t>(
-                grad_output,
-                host_weights,
-                weights_offsets_data,
-                D_offsets_data,
-                hash_size_cumsum,
-                indices,
-                offsets,
-                pooling_mode,
-                indice_weights,
-                num_tables,
-                B,
-                table_to_feature_offset,
-                {% if "momentum1_offsets" in args.split_function_arg_names %}
-                momentum1_offsets_data,
-                {% endif %}
-                {% if "momentum2_offsets" in args.split_function_arg_names %}
-                momentum2_offsets_data,
-                {% endif %}
-                {{ args.split_cpu_kernel_arg_constructors | join(", ") }});
-          });
+        host_weights.scalar_type(), 
+        "split_embedding_backward_exact_cpu_kernel_3", [&] {
+
+          split_embedding_backward_exact_cpu_kernel<index_t, scalar_t, grad_t>(
+              grad_output,
+              host_weights,
+              weights_offsets_data,
+              D_offsets_data,
+              hash_size_cumsum,
+              indices,
+              offsets,
+              pooling_mode,
+              indice_weights,
+              num_tables,
+              B,
+              table_to_feature_offset,
+              {% if "momentum1_offsets" in args.split_function_arg_names %}
+              momentum1_offsets_data,
+              {% endif %}
+              {% if "momentum2_offsets" in args.split_function_arg_names %}
+              momentum2_offsets_data,
+              {% endif %}
+              {{ args.split_cpu_kernel_arg_constructors | join(", ") }});
+        });
+      });
     });
 
   return;
@@ -385,10 +393,16 @@ for (const auto d : c10::irange(D)) {
 
   // When input is dense enough, avoid sorting and just treat as dense.
   auto grad = zeros_like(host_weights, grad_output.dtype());
-  FBGEMM_DISPATCH_FLOAT_AND_HALF(
-      grad_output.scalar_type(), "split_embedding_backward_exact_cpu", [&] {
+  FBGEMM_DISPATCH_INTEGRAL_TYPES(
+    indices.scalar_type(), 
+    "split_embedding_backward_exact_cpu_dense_kernel", [&] {
+    using index_t = scalar_t;
 
-        split_embedding_backward_exact_cpu_dense_kernel<scalar_t>(
+    FBGEMM_DISPATCH_FLOAT_AND_HALF(
+      grad_output.scalar_type(), 
+      "split_embedding_backward_exact_cpu", [&] {
+
+        split_embedding_backward_exact_cpu_dense_kernel<index_t, scalar_t>(
             grad,
             grad_output,
             weights_offsets_data,
@@ -400,7 +414,8 @@ for (const auto d : c10::irange(D)) {
             num_tables,
             B,
             table_to_feature_offset);
-      }); // dispatch host_weights.scalar_type()
+      });
+    });
 
   return grad;
   {% endif %}

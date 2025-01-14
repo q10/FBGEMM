@@ -168,6 +168,8 @@ def benchmark_requests(
 
     if num_warmups > 0:
         indices, offsets, weights = requests[0].unpack_3()
+        print(f"INDICES BENCHMARK {indices.dtype}")
+        print(f"OFFSETS BENCHMARK {offsets.dtype}")
         for _ in range(num_warmups):
             out = func(indices, offsets, weights)
             if bwd_only:
