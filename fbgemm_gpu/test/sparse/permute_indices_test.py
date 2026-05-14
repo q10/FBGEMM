@@ -27,10 +27,20 @@ from .common import (
 
 if open_source:
     # pyre-ignore[21]
-    from test_utils import gpu_available, gpu_unavailable, on_oss_clang
+    from test_utils import (
+        gpu_available,
+        gpu_memory_lt_gb,
+        gpu_unavailable,
+        on_oss_clang,
+    )
 else:
     import fbgemm_gpu.sparse_ops  # noqa: F401, E402
-    from fbgemm_gpu.test.test_utils import gpu_available, gpu_unavailable, on_oss_clang
+    from fbgemm_gpu.test.test_utils import (
+        gpu_available,
+        gpu_memory_lt_gb,
+        gpu_unavailable,
+        on_oss_clang,
+    )
 
 
 class PermuteIndicesTest(unittest.TestCase):
@@ -785,6 +795,44 @@ class PermuteIndicesTest(unittest.TestCase):
             torch.testing.assert_close(permuted_weights_gpu.cpu(), permuted_weights_cpu)
         else:
             self.assertIsNone(permuted_weights_gpu)
+
+    @unittest.skipIf(*gpu_unavailable)
+    # Skip on GPUs with insufficient HBM (need a few hundred MB for the
+    # int32 N-element tensors).
+    @unittest.skipIf(*gpu_memory_lt_gb(4))
+    def test_permute_1D_sparse_data_large_grid(self) -> None:
+        """
+        Reproduces the HIP grid-overflow bug in permute_1D_sparse_data_cuda.
+
+        With BT_blocks=16 and dim3(64, 16) (block size 1024), the launch grid
+        is cuda_calc_xblock_count(N, 16). For N > 2**26, total threads exceed
+        the HIP 2**32 limit, causing FBGEMM_LAUNCH_KERNEL ->
+        KernelLauncher::checkThreadCountNotExceeded to TORCH_CHECK-fail on
+        ROCm. Uses all-zero lengths so no per-segment work is performed,
+        keeping HBM usage small while still triggering the launch-side check.
+        """
+
+        # Choose N so that total threads strictly exceeds 2**32:
+        # cuda_calc_xblock_count(N, 16) * 1024 ~= N * 64; need N > 2**26.
+        N = (1 << 26) + 1
+
+        device = torch.device(torch.accelerator.current_accelerator() or "cuda")
+        permute = torch.arange(N, dtype=torch.int32, device=device)
+        lengths = torch.zeros(N, dtype=torch.int32, device=device)
+        indices = torch.empty(0, dtype=torch.int32, device=device)
+
+        (
+            permuted_lengths,
+            permuted_indices,
+            permuted_weights,
+        ) = torch.ops.fbgemm.permute_1D_sparse_data(
+            permute, lengths, indices, None, None
+        )
+
+        self.assertEqual(permuted_lengths.numel(), N)
+        self.assertTrue(torch.all(permuted_lengths == 0).item())
+        self.assertEqual(permuted_indices.numel(), 0)
+        self.assertIsNone(permuted_weights)
 
 
 extend_test_class(PermuteIndicesTest)
